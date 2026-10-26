@@ -22,7 +22,6 @@ Apache Superset is a data visualization platform with Flask/Python backend and R
 - **Prefer unit tests** over integration tests
 - **Prefer integration tests** over end-to-end tests
 - **Use Playwright for E2E tests** - Cypress has been removed
-- **Use Jest + React Testing Library** for component testing
 
 ### Backend Type Safety
 - **Add type hints** - All new Python code needs proper typing
@@ -32,16 +31,10 @@ Apache Superset is a data visualization platform with Flask/Python backend and R
 ## Code Standards
 
 ### TypeScript Frontend
-- **NO `any` types** - Use proper TypeScript
 - **Functional components** with hooks
-- **@superset-ui/core** for UI components (not direct antd)
-- **Jest** for testing (NO Enzyme)
 - **Redux** for global state, hooks for local
 
 ### Python Backend
-- **Type hints required** for all new code
-- **MyPy compliant** - run `pre-commit run mypy`
-- **SQLAlchemy models** with proper typing
 - **pytest** for testing
 
 ### Apache License Headers
@@ -53,7 +46,7 @@ Apache Superset is a data visualization platform with Flask/Python backend and R
 ```
 superset/
 ├── superset/                    # Python backend (Flask, SQLAlchemy)
-│   ├── views/api/              # REST API endpoints
+│   ├── views/                  # Flask views and legacy APIs
 │   ├── models/                 # Database models
 │   └── connectors/             # Database connections
 ├── superset-frontend/src/       # React TypeScript frontend
@@ -94,7 +87,6 @@ Charts built from enriched datasets containing:
 - **`superset-frontend/spec/helpers/testing-library.tsx`** - Custom render() with providers
 - **`createWrapper()`** - Redux/Router/Theme wrapper
 - **`selectOption()`** - Select component helper
-- **React Testing Library** - NO Enzyme (removed)
 
 ## Pre-commit Validation
 
@@ -107,8 +99,8 @@ pre-commit install
 # Quick validation (faster than --all-files)
 pre-commit run                   # Staged files only
 pre-commit run mypy              # Python type checking
-pre-commit run format            # Code formatting
-pre-commit run eslint            # Frontend linting
+pre-commit run ruff-format        # Python formatting
+pre-commit run oxlint-frontend    # Frontend linting
 ```
 
 ## Development Guidelines
