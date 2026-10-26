@@ -360,7 +360,7 @@ curl -f http://localhost:8088/health && echo "✅ Superset ready"
 ```bash
 # Frontend development
 cd superset-frontend
-npm run dev          # Development server on http://localhost:9000
+npm run dev-server   # Development server on http://localhost:9000
 npm run test         # Run all tests
 npm run test -- filename.test.tsx  # Run single test file
 npm run lint         # Linting and type checking

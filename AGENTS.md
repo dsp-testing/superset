@@ -26,7 +26,7 @@ fix them in a separate branch rather than adding unrelated changes to the
 current pull request.
 
 Common pre-commit failures:
-- **Formatting** - black, oxfmt, eslint will auto-fix
+- **Formatting** - ruff-format, oxfmt will auto-fix
 - **Type errors** - mypy failures need manual fixes
 - **Linting** - ruff, pylint issues need manual fixes
 
@@ -82,7 +82,7 @@ Route-level authorization in this codebase uses one of three Flask-AppBuilder de
 - `@has_access_api` for legacy view routes
 - `@has_access` for legacy HTML view routes
 
-Object-level authorization via `security_manager.raise_for_access(...)` applies to data-bearing resources: dashboards, charts, datasets and datasources, queries, database and table access, and query contexts. Other resources (annotations, tags, CSS templates, reports, RLS rules, and similar) rely on the route-level decorator plus DAO `base_filters` for ownership scoping; the absence of `raise_for_access` on these resources is by design, not a finding. Code that omits the per-object gate on a route that returns or mutates a specific data-bearing object is in scope; code that follows the correct pattern for its resource class can still contain injection, SSRF, XSS, or other classes of finding unrelated to authorization, which are evaluated separately.
+Object-level authorization via `security_manager.raise_for_access(...)` applies to data-bearing resources: dashboards, charts, datasets and datasources, queries, database and table access, and query contexts. Other resources (annotations, tags, CSS templates, reports, RLS rules, and similar) rely on the route-level decorator; the absence of `raise_for_access` on these resources is by design, not a finding. Code that omits the per-object gate on a route that returns or mutates a specific data-bearing object is in scope; code that follows the correct pattern for its resource class can still contain injection, SSRF, XSS, or other classes of finding unrelated to authorization, which are evaluated separately.
 
 The full role and capability matrix, in-scope and out-of-scope class lists, and CVE aggregation rules are in [`SECURITY.md`](SECURITY.md). Defer to that document for any specifics.
 
@@ -100,7 +100,7 @@ Findings that cannot identify both should be filed as questions, not vulnerabili
 ```
 superset/
 ├── superset/                    # Python backend (Flask, SQLAlchemy)
-│   ├── views/api/              # REST API endpoints
+│   ├── views/                  # Flask views and legacy APIs
 │   ├── models/                 # Database models
 │   └── connectors/             # Database connections
 ├── superset-frontend/src/       # React TypeScript frontend
@@ -120,14 +120,10 @@ superset/
 ### TypeScript Frontend
 - **Avoid `any` types** - Use proper TypeScript, reuse existing types
 - **Functional components** with hooks
-- **@superset-ui/core** for UI components (not direct antd)
 - **Jest** for testing (NO Enzyme)
 - **Redux** for global state where it exists, hooks for local
 
 ### Python Backend  
-- **Type hints required** for all new code
-- **MyPy compliant** - run `pre-commit run mypy`
-- **SQLAlchemy models** with proper typing
 - **pytest** for testing
 
 ### Apache License Headers
@@ -189,7 +185,6 @@ The Developer Portal auto-generates MDX documentation from Storybook stories. **
 - **`superset-frontend/spec/helpers/testing-library.tsx`** - Custom render() with providers
 - **`createWrapper()`** - Redux/Router/Theme wrapper
 - **`selectOption()`** - Select component helper
-- **React Testing Library** - NO Enzyme (removed)
 
 ### Test Database Patterns
 - **Mock patterns**: Use `MagicMock()` for config objects, avoid `AsyncMock` for synchronous code
@@ -202,7 +197,7 @@ npm run test                           # All tests
 npm run test -- filename.test.tsx     # Single file
 
 # E2E Tests (Playwright)
-npm run playwright:test                # All Playwright tests
+npm run playwright:test                # Playwright tests
 npm run playwright:ui                  # Interactive UI mode
 npm run playwright:headed              # See browser during tests
 npx playwright test tests/auth/login.spec.ts  # Single file
@@ -229,7 +224,7 @@ curl -f http://localhost:8088/health || echo "❌ Setup required - see https://s
 "It appears you aren't set up properly. Please refer to the [Working with LLMs](https://superset.apache.org/docs/contributing/development#working-with-llms) section in the development docs for setup instructions."
 
 **Key Project Files:**
-- `superset-frontend/package.json` - Frontend build scripts (`npm run dev` on port 9000, `npm run test`, `npm run lint`)
+- `superset-frontend/package.json` - Frontend build scripts (`npm run dev-server` on port 9000, `npm run test`, `npm run lint`)
 - `pyproject.toml` - Python tooling (ruff, mypy configs)
 - `requirements/` folder - Python dependencies (base.txt, development.txt)
 
@@ -248,8 +243,6 @@ curl -f http://localhost:8088/health || echo "❌ Setup required - see https://s
    - Example: `fix(dashboard): load charts correctly`
    - Types: `fix`, `feat`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 
-**Important**: Always reference the actual template file at `.github/PULL_REQUEST_TEMPLATE.md` instead of using cached content, as the template may be updated over time.
-
 ## Pre-commit Validation
 
 **Use pre-commit hooks for quality validation:**
@@ -264,8 +257,8 @@ git add .                        # Pre-commit only checks staged files
 # Quick validation (faster than --all-files)
 pre-commit run                   # Staged files only
 pre-commit run mypy              # Python type checking
-pre-commit run format            # Code formatting
-pre-commit run eslint            # Frontend linting
+pre-commit run ruff-format        # Python formatting
+pre-commit run oxlint-frontend    # Frontend linting
 ```
 
 **Important pre-commit usage notes:**
@@ -309,7 +302,3 @@ pre-commit run eslint            # Frontend linting
 
 ## Active Technologies
 - TypeScript (React 17-style functional components, Node 24 toolchain); Python 3.11+ + Redux chart store (`state.charts`), `@superset-ui/core/components` (`CodeSyntaxHighlighter`, `Loading`), `@apache-superset/core` (translation, theme, `Alert`), `src/components` `CopyToClipboard`; backend `QueryObjectValidationError` + `_get_query` result-type handler (sc-104912-semantic-view-show-sql)
-- N/A — no persisted change; displays data already carried on the chart-data response (sc-104912-semantic-view-show-sql)
-
-## Recent Changes
-- sc-104912-semantic-view-show-sql: Added TypeScript (React 17-style functional components, Node 24 toolchain); Python 3.11+ + Redux chart store (`state.charts`), `@superset-ui/core/components` (`CodeSyntaxHighlighter`, `Loading`), `@apache-superset/core` (translation, theme, `Alert`), `src/components` `CopyToClipboard`; backend `QueryObjectValidationError` + `_get_query` result-type handler
